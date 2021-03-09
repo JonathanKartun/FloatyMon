@@ -12,7 +12,7 @@ Service is not persistent although will sit in background and pop up when call d
 
 ###### Implemented:
 
- * Floating Widget
+ * Draggable Floating Widget
  * Phone Calling detection
  * Phone number detecting
  * LocaLocalBroadcastReceiver and BroadcastReceiver implementation
