@@ -68,10 +68,11 @@
     <Compile Include="Source\Extras\DialogBox.cs" />
     <Compile Include="Source\Services\CallingService.cs" />
     <Compile Include="Source\Services\CallingServiceServiceConnection.cs" />
-    <Compile Include="Source\Monitors\JonCallMonitor.cs" />
+    <Compile Include="Source\Monitors\ActiveCallMonitor.cs" />
     <Compile Include="Source\Constants.cs" />
     <Compile Include="Source\Extras\LocalIntentHelper.cs" />
     <Compile Include="MainActivityServiceManager.cs" />
+    <Compile Include="Source\Monitors\PhoneActivityListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

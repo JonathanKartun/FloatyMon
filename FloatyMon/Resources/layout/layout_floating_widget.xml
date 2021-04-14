@@ -30,7 +30,7 @@
     android:layout_height="wrap_content"/>
   <ImageView
     android:id="@+id/iv3"
-    android:src="@android:drawable/ic_menu_close_clear_cancel"
+    android:src="@android:drawable/ic_delete"
     android:layout_marginLeft="10dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"/>

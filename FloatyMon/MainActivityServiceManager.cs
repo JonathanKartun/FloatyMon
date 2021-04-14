@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android;
 using Android.App;
-using Android.Bluetooth;
 using Android.Content;
 using Android.Content.PM;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
-using Android.Support.V7.App;
 using FloatyMon.Source.Services;
-using Java.Lang;
 
 namespace FloatyMon.Source
 {
@@ -27,49 +23,38 @@ namespace FloatyMon.Source
         {
             if (serviceConnection == null)
             {
-                this.serviceConnection = new CallingServiceServiceConnection(mainActivity);
+                serviceConnection = new CallingServiceServiceConnection();
             }
-            
-            Intent serviceToStart = new Intent(mainActivity, typeof(CallingService));
-            mainActivity.BindService(serviceToStart, this.serviceConnection, Bind.AutoCreate);
-        }
 
-        //public void RelaunchCallingServiceListener()
-        //{
-        //    if (this.serviceConnection != null) {
-        //        this.serviceConnection.Dispose();
-        //        serviceConnection = null;
-        //    }
-        //    LaunchCallingServiceListener();
-        //}
+            Context context = Application.Context;
+            Intent serviceToStart = new Intent(context, typeof(CallingService));
+            context.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
+        }
 
         public void CheckFloatAllowedAndLaunchFloatingWindow()
         {
             if (Android.Provider.Settings.CanDrawOverlays(mainActivity))
-            {// Launch service right away - the user has already previously granted permission
+            { // Launch service right away - the user has already previously granted permission
                 LaunchFloatingWindowService();
             }
             else
-            {
-                // Check that the user has granted permission, and prompt them if not
+            { // Check that the user has granted permission, and prompt them if not
                 CheckDrawOverlayPermission();
             }
         }
 
         public void LaunchFloatingWindowService()
         {
-            var AppContext = Android.App.Application.Context;
+            var AppContext = Application.Context;
             Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
 
             AppContext.StopService(svc);
             AppContext.StartService(svc);
-
-            //mainActivity.Finish(); //Without this, it asks again...
         }
 
         private void StopFloatingWindowService()
         {
-            var AppContext = Android.App.Application.Context;
+            var AppContext = Application.Context;
             Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
 
             AppContext.StopService(svc);
@@ -77,13 +62,11 @@ namespace FloatyMon.Source
 
         public void CheckDrawOverlayPermission()
         {
-            var AppContext = Android.App.Application.Context;
-            if (!Android.Provider.Settings.CanDrawOverlays(AppContext)) //this
+            var AppContext = Application.Context;
+            if (!Android.Provider.Settings.CanDrawOverlays(AppContext))
             {
                 // If not, Intent to launch the permission request
                 Intent intent = new Intent(Android.Provider.Settings.ActionManageOverlayPermission, Android.Net.Uri.Parse("package:" + mainActivity.PackageName));
-
-                // Launch Intent, with the supplied request code
                 mainActivity.StartActivityForResult(intent, Constants.OVERLAY_REQUEST_CODE);
             }
             else
@@ -95,12 +78,12 @@ namespace FloatyMon.Source
         //Needs this permission check to access the Phone Number calling. Otherwise it's always blank. (But can still get calling states even if denied)
         public void CheckCallReadPermission()
         {
-            var AppContext = Android.App.Application.Context;
-            string[] NECESSARY_PERMISSIONS = new string[] { Android.Manifest.Permission.ReadCallLog };
+            var AppContext = Application.Context;
+            string[] NECESSARY_PERMISSIONS = new string[] { Manifest.Permission.ReadCallLog };
 
             if (ContextCompat.CheckSelfPermission(AppContext, Manifest.Permission.ReadCallLog) == Permission.Granted)
             {
-                //Permission is granted
+                LaunchCallingServiceListener(); //Launches the Phone call Listening Service
             }
             else
             {
@@ -109,25 +92,19 @@ namespace FloatyMon.Source
         }
 
         [Obsolete]
-        public bool isServiceRunning<T>(Context context)
+        public bool IsServiceRunning<T>(Context context)
         {
             ActivityManager actMan = (ActivityManager)context.GetSystemService(Context.ActivityService);
             var services = actMan.GetRunningServices(int.MaxValue);
             
             foreach (var service in services)
             {
-                //System.Diagnostics.Debug.WriteLine($"Serv = {service.Service.ClassName} -> My Compare = {typeof(T).Name}");   
                 if (service.Service.ClassName.EndsWith(typeof(T).Name))
                 {
                     return true;
                 }
             }
             return false;
-        }
-
-        public static Context AppContext()
-        {
-            return Android.App.Application.Context;
         }
     }
 }

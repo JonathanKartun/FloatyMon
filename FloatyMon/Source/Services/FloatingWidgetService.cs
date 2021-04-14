@@ -6,15 +6,14 @@ using Android.Runtime;
 using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
-using AndroidX.DynamicAnimation;
 using FloatyMon;
 using FloatyMon.Source;
 
 [Service]
-class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
+class FloatingWidgetService : Service, View.IOnTouchListener
 {
     WindowManagerLayoutParams layoutParams;
-    IWindowManager windowManager;
+    IWindowManager WindowManager;
     View floatView;
 
     TextView txtResult;
@@ -31,7 +30,7 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
 
         if (floatView != null)
         {
-            windowManager.RemoveView(floatView);
+            WindowManager.RemoveView(floatView);
             UnregisterLocalBroadcastReceiver();
         }
     }
@@ -40,7 +39,7 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
     public override StartCommandResult OnStartCommand(Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId)
     {
         ShowFloatingWindow();
-        return StartCommandResult.NotSticky;
+        return StartCommandResult.Sticky;
     }
 
     public override IBinder OnBind(Intent intent)
@@ -50,23 +49,22 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
 
     private void ShowFloatingWindow()
     {
-        windowManager = GetSystemService(WindowService).JavaCast<IWindowManager>();
+        WindowManager = GetSystemService(WindowService).JavaCast<IWindowManager>();
         LayoutInflater mLayoutInflater = LayoutInflater.From(ApplicationContext);
         floatView = mLayoutInflater.Inflate(Resource.Layout.layout_floating_widget, null);
-        //floatView.SetBackgroundColor(Android.Graphics.Color.Transparent);
-        floatView.SetBackgroundColor(Android.Graphics.Color.Argb(15, 0,0,0));
+        floatView.SetBackgroundColor(Color.Argb(15, 0,0,0));
 
         floatView.SetOnTouchListener(this);
-        txtResult = floatView.FindViewById<TextView>(Resource.Id.txtDetails); //Details text field
+        txtResult = floatView.FindViewById<TextView>(Resource.Id.txtDetails);
         ImageView iv1 = floatView.FindViewById<ImageView>(Resource.Id.iv1);
         ImageView iv2 = floatView.FindViewById<ImageView>(Resource.Id.iv2);
         ImageView iv3 = floatView.FindViewById<ImageView>(Resource.Id.iv3);
         iv1.Click += delegate { Toast.MakeText(ApplicationContext, "The first Image Click", ToastLength.Short).Show(); };
-        iv2.Click += delegate { Toast.MakeText(ApplicationContext, "The second Image Click", ToastLength.Short).Show(); };
+        iv2.Click += delegate { Toast.MakeText(ApplicationContext, "Hides Me!", ToastLength.Short).Show(); floatView.Visibility = ViewStates.Invisible; };
         iv3.Click += delegate { Toast.MakeText(ApplicationContext, "STOPPING SERVICE", ToastLength.Short).Show(); StopFloatingWindowService(); };
 
         layoutParams = new WindowManagerLayoutParams(
-            ViewGroup.LayoutParams.WrapContent, //MatchParent
+            ViewGroup.LayoutParams.WrapContent,
             ViewGroup.LayoutParams.WrapContent,
             WindowManagerTypes.Phone,
             WindowManagerFlags.NotTouchModal | WindowManagerFlags.NotFocusable | WindowManagerFlags.LayoutInScreen,
@@ -81,15 +79,14 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
             layoutParams.Type = WindowManagerTypes.Phone;
         }
 
-        layoutParams.Width = 500;
-        //layoutParams.Height = 100;
+        layoutParams.Width = 550;
         layoutParams.X = 100;
         layoutParams.Y = 200;
         layoutParams.Gravity = GravityFlags.Center | GravityFlags.Start;
 
-        floatView.Visibility = ViewStates.Invisible;//??
+        floatView.Visibility = ViewStates.Invisible;
 
-        windowManager.AddView(floatView, layoutParams);
+        WindowManager.AddView(floatView, layoutParams);
     }
 
     private int x;
@@ -113,7 +110,7 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
                 layoutParams.X = layoutParams.X + movedX;
                 layoutParams.Y = layoutParams.Y + movedY;
 
-                windowManager.UpdateViewLayout(floatView, layoutParams);
+                WindowManager.UpdateViewLayout(floatView, layoutParams);
                 break;
 
             default:
@@ -129,7 +126,7 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
 
     private void StopFloatingWindowService()
     {
-        var AppContext = Android.App.Application.Context;
+        var AppContext = Application.Context;
         Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
         AppContext.StopService(svc);
     }
@@ -167,15 +164,15 @@ class FloatingWidgetService : Service, Android.Views.View.IOnTouchListener
 
     void RegisterLocalBroadcastReceiver()
     {
-        var AppContext = Android.App.Application.Context;
+        var AppContext = Application.Context;
         myLocalReceiver = new LocaLocalBroadcastReceiver(this);
 
-        Android.Support.V4.Content.LocalBroadcastManager.GetInstance(AppContext).RegisterReceiver(myLocalReceiver, new IntentFilter("com.jon.floatymon.floaty"));
+        LocalBroadcastManager.GetInstance(AppContext).RegisterReceiver(myLocalReceiver, new IntentFilter("com.jon.floatymon.floaty"));
     }
 
     void UnregisterLocalBroadcastReceiver()
     {
-        var AppContext = Android.App.Application.Context;
+        var AppContext = Application.Context;
         LocalBroadcastManager.GetInstance(AppContext).UnregisterReceiver(myLocalReceiver);
     }
 

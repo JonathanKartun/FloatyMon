@@ -1,16 +1,4 @@
-﻿//import android.annotation.TargetApi;
-//import android.app.Notification;
-//import android.app.NotificationManager;
-//import android.app.PendingIntent;
-//import android.app.Service;
-//import android.content.Intent;
-//import android.os.Binder;
-//import android.os.Build;
-//import android.os.IBinder;
-//import android.util.Log;
-//import android.widget.Toast;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
@@ -22,7 +10,7 @@ using FloatyMon.Source.Monitors;
 public class CallingService : Service
 {
     public IBinder Binder { get; private set; }
-    private JonCallMonitor jonCall;
+    private ActiveCallMonitor CallMonitor;
 
     #region Service Lifecycle
     public override void OnCreate()
@@ -34,11 +22,11 @@ public class CallingService : Service
     public override IBinder OnBind(Intent intent)
     {
         Log.Debug("JCallingService", "ON_BIND");
-        this.Binder = new CallingServiceBinder(this);
+        Binder = new CallingServiceBinder(this);
 
         InitializeJonCallListener();
 
-        return this.Binder;
+        return Binder;
     }
 
     public override bool OnUnbind(Intent intent)
@@ -50,20 +38,15 @@ public class CallingService : Service
     [return: GeneratedEnum]
     public override StartCommandResult OnStartCommand(Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId)
     {
-        ///
-        //if (intent.Action == "START")
-        
-        // This method executes on the main thread of the application.
         Log.Debug("JCallingService", "JCallingService started");
 
-        //return base.OnStartCommand(intent, flags, startId);
         return StartCommandResult.Sticky;
     }
 
     public override void OnDestroy()
     {
         Log.Debug("JCallingService", "JCallingService Destr0y3d!");
-        StopJonCallListener();
+        //StopJonCallListener();
         base.OnDestroy();
     }
 
@@ -71,19 +54,19 @@ public class CallingService : Service
 
     public void InitializeJonCallListener()
     {
-        if (jonCall == null)
+        if (CallMonitor == null)
         {
-            jonCall = new JonCallMonitor((Binder as CallingServiceBinder).TheMainActivity); //???
+            CallMonitor = new ActiveCallMonitor();
         }
 
-        jonCall.StartListener();
+        CallMonitor.StartListener();
     }
 
     public void StopJonCallListener()
     {
-        if (jonCall != null)
+        if (CallMonitor != null)
         {
-            jonCall.StopListening();
+            CallMonitor.StopListening();
         }
     }
 }
@@ -95,16 +78,16 @@ public class CallingServiceBinder : Binder
 
     public CallingServiceBinder(CallingService service)
     {
-        this.Service = service;
+        Service = service;
     }
 
     private void InitializeJonCallListener()
     {
-        this.Service.InitializeJonCallListener();
+        Service.InitializeJonCallListener();
     }
 
     private void StopJonCallListener()
     {
-        this.Service.StopJonCallListener();
+        Service.StopJonCallListener();
     }
 }
