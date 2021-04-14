@@ -24,7 +24,7 @@ public class CallingService : Service
         Log.Debug("JCallingService", "ON_BIND");
         Binder = new CallingServiceBinder(this);
 
-        InitializeJonCallListener();
+        InitializeCallListener();
 
         return Binder;
     }
@@ -52,7 +52,7 @@ public class CallingService : Service
 
     #endregion
 
-    public void InitializeJonCallListener()
+    public void InitializeCallListener()
     {
         if (CallMonitor == null)
         {
@@ -62,7 +62,7 @@ public class CallingService : Service
         CallMonitor.StartListener();
     }
 
-    public void StopJonCallListener()
+    public void StopCallListener()
     {
         if (CallMonitor != null)
         {
@@ -81,13 +81,13 @@ public class CallingServiceBinder : Binder
         Service = service;
     }
 
-    private void InitializeJonCallListener()
+    private void InitializeCallListener()
     {
-        Service.InitializeJonCallListener();
+        Service.InitializeCallListener();
     }
 
-    private void StopJonCallListener()
+    private void StopCallListener()
     {
-        Service.StopJonCallListener();
+        Service.StopCallListener();
     }
 }

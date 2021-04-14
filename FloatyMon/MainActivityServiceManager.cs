@@ -28,6 +28,7 @@ namespace FloatyMon.Source
 
             Context context = Application.Context;
             Intent serviceToStart = new Intent(context, typeof(CallingService));
+            context.StartService(serviceToStart);
             context.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
         }
 

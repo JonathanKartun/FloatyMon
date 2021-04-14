@@ -107,8 +107,8 @@ class FloatingWidgetService : Service, View.IOnTouchListener
                 int movedY = nowY - y;
                 x = nowX;
                 y = nowY;
-                layoutParams.X = layoutParams.X + movedX;
-                layoutParams.Y = layoutParams.Y + movedY;
+                layoutParams.X += movedX;
+                layoutParams.Y += movedY;
 
                 WindowManager.UpdateViewLayout(floatView, layoutParams);
                 break;
@@ -133,15 +133,15 @@ class FloatingWidgetService : Service, View.IOnTouchListener
 
     #region Broadcast Receiver - Listen From Call Mon
 
-    LocaLocalBroadcastReceiver myLocalReceiver;
+    LocaLocalBroadcastReceiver MyLocalReceiver;
 
     [BroadcastReceiver(Enabled = true, Exported = false)]
     public class LocaLocalBroadcastReceiver : BroadcastReceiver
     {
-        Context context;
+        readonly Context Context;
         public LocaLocalBroadcastReceiver(Context context)
         {
-            this.context = context;
+            Context = context;
         }
         public LocaLocalBroadcastReceiver(){}
 
@@ -152,12 +152,12 @@ class FloatingWidgetService : Service, View.IOnTouchListener
             
             if (intent.HasExtra(Constants.FLOATY_MAKEVISIBLE_KEY))
             {
-                ((FloatingWidgetService)this.context).floatView.Visibility = ( makeVisible ? ViewStates.Visible : ViewStates.Invisible );
+                ((FloatingWidgetService)Context).floatView.Visibility = ( makeVisible ? ViewStates.Visible : ViewStates.Invisible );
             }
 
             if (intent.HasExtra(Constants.FLOATY_SETTEXT_KEY))
             {
-                ((FloatingWidgetService)this.context).SetDetailsText(strText);
+                ((FloatingWidgetService)Context).SetDetailsText(strText);
             }
         }
     }
@@ -165,15 +165,15 @@ class FloatingWidgetService : Service, View.IOnTouchListener
     void RegisterLocalBroadcastReceiver()
     {
         var AppContext = Application.Context;
-        myLocalReceiver = new LocaLocalBroadcastReceiver(this);
+        MyLocalReceiver = new LocaLocalBroadcastReceiver(this);
 
-        LocalBroadcastManager.GetInstance(AppContext).RegisterReceiver(myLocalReceiver, new IntentFilter("com.jon.floatymon.floaty"));
+        LocalBroadcastManager.GetInstance(AppContext).RegisterReceiver(MyLocalReceiver, new IntentFilter(Constants.FLOATY_LOCAL_INTENT));
     }
 
     void UnregisterLocalBroadcastReceiver()
     {
         var AppContext = Application.Context;
-        LocalBroadcastManager.GetInstance(AppContext).UnregisterReceiver(myLocalReceiver);
+        LocalBroadcastManager.GetInstance(AppContext).UnregisterReceiver(MyLocalReceiver);
     }
 
     #endregion
