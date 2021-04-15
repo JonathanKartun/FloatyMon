@@ -17,16 +17,16 @@ namespace FloatyMon.Source
         public MainActivityServiceManager(MainActivity mainActivity)
         {
             this.mainActivity = mainActivity;
+
+            if (serviceConnection == null)
+            {
+                serviceConnection = new CallingServiceServiceConnection();
+            }
         }
 
         #region Starting Services
         public void LaunchCallingServiceListener()
         {
-            if (serviceConnection == null)
-            {
-                serviceConnection = new CallingServiceServiceConnection();
-            }
-
             Context context = Application.Context;
             Intent serviceToStart = new Intent(context, typeof(CallingService));
             context.StartService(serviceToStart);
