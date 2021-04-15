@@ -32,18 +32,6 @@ namespace FloatyMon.Source
             context.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
         }
 
-        public void CheckFloatAllowedAndLaunchFloatingWindow()
-        {
-            if (Android.Provider.Settings.CanDrawOverlays(mainActivity))
-            { // Launch service right away - the user has already previously granted permission
-                LaunchFloatingWindowService();
-            }
-            else
-            { // Check that the user has granted permission, and prompt them if not
-                CheckDrawOverlayPermission();
-            }
-        }
-
         public void LaunchFloatingWindowService()
         {
             var AppContext = Application.Context;
@@ -51,6 +39,7 @@ namespace FloatyMon.Source
 
             AppContext.StopService(svc);
             AppContext.StartService(svc);
+            AppContext.BindService(svc, serviceConnection, Bind.AutoCreate);
         }
 
         private void StopFloatingWindowService()
@@ -64,15 +53,14 @@ namespace FloatyMon.Source
         public void CheckDrawOverlayPermission()
         {
             var AppContext = Application.Context;
-            if (!Android.Provider.Settings.CanDrawOverlays(AppContext))
-            {
-                // If not, Intent to launch the permission request
-                Intent intent = new Intent(Android.Provider.Settings.ActionManageOverlayPermission, Android.Net.Uri.Parse("package:" + mainActivity.PackageName));
-                mainActivity.StartActivityForResult(intent, Constants.OVERLAY_REQUEST_CODE);
-            }
-            else
+            if (Android.Provider.Settings.CanDrawOverlays(AppContext))
             {
                 LaunchFloatingWindowService();
+            }
+            else
+            {   // Intent to launch the permission request
+                Intent intent = new Intent(Android.Provider.Settings.ActionManageOverlayPermission, Android.Net.Uri.Parse("package:" + mainActivity.PackageName));
+                mainActivity.StartActivityForResult(intent, Constants.OVERLAY_REQUEST_CODE);
             }
         }
 

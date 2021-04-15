@@ -39,7 +39,7 @@ namespace FloatyMon
         void SetupServices()
         {
             serviceManager.CheckCallReadPermission();
-            serviceManager.CheckFloatAllowedAndLaunchFloatingWindow();
+            serviceManager.CheckDrawOverlayPermission();
 
             CheckIsRunning();
         }
