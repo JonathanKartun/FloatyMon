@@ -12,13 +12,14 @@ namespace FloatyMon.Source
     public class MainActivityServiceManager
     {
         MainActivity mainActivity;
-        CallingServiceServiceConnection serviceConnection;
+        public static CallingServiceServiceConnection serviceConnection { get; private set; }
 
         public MainActivityServiceManager(MainActivity mainActivity)
         {
             this.mainActivity = mainActivity;
         }
 
+        #region Starting Services
         public void LaunchCallingServiceListener()
         {
             if (serviceConnection == null)
@@ -42,13 +43,32 @@ namespace FloatyMon.Source
             AppContext.BindService(svc, serviceConnection, Bind.AutoCreate);
         }
 
-        private void StopFloatingWindowService()
+        #endregion
+
+        #region Stopping Services
+
+        public void StopCallingMonitorService()
+        {
+            var AppContext = Application.Context;
+            Intent svc = new Intent(AppContext, typeof(CallingService));
+
+            AppContext.StopService(svc);
+        }
+
+        public void StopFloatingWindowService()
         {
             var AppContext = Application.Context;
             Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
 
             AppContext.StopService(svc);
+
+            if (serviceConnection != null && serviceConnection.IsConnected)
+            {
+                AppContext.UnbindService(serviceConnection);
+            }
         }
+
+        #endregion
 
         public void CheckDrawOverlayPermission()
         {

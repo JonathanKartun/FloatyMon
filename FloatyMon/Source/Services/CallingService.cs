@@ -46,7 +46,7 @@ public class CallingService : Service
     public override void OnDestroy()
     {
         Log.Debug("JCallingService", "JCallingService Destr0y3d!");
-        //StopJonCallListener();
+        StopCallListener();
         base.OnDestroy();
     }
 

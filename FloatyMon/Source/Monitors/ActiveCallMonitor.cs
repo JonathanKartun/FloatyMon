@@ -1,5 +1,4 @@
-﻿using System;
-using Android.Content;
+﻿using Android.Content;
 using Android.Telephony;
 using FloatyMon.Source.Extras;
 

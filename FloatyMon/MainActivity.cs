@@ -16,7 +16,7 @@ namespace FloatyMon
     public class MainActivity : AppCompatActivity
     {
         public static MainActivity ThisMainActivity;
-        private MainActivityServiceManager serviceManager { get; set; }
+        public MainActivityServiceManager serviceManager { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -36,10 +36,14 @@ namespace FloatyMon
             SetupServices();
         }
 
+        [Obsolete]
         void SetupServices()
         {
-            serviceManager.CheckCallReadPermission();
-            serviceManager.CheckDrawOverlayPermission();
+            if (!serviceManager.IsServiceRunning<FloatingWidgetService>(Application.Context))
+            {
+                serviceManager.CheckCallReadPermission();
+                serviceManager.CheckDrawOverlayPermission();
+            }
 
             CheckIsRunning();
         }
@@ -54,10 +58,20 @@ namespace FloatyMon
         private void FabOnClick(object sender, EventArgs eventArgs)
         {
             View view = (View)sender;
-            Snackbar.Make(view, "Relaunches Floating Window Service", Snackbar.LengthLong)
-                .SetAction("Action", (View.IOnClickListener)null).Show();
+            var snackBar = Snackbar.Make(view, "Relaunches Floating Window Service", Snackbar.LengthLong)
+                .SetAction("Action", (View.IOnClickListener)null);
 
-            serviceManager.LaunchFloatingWindowService();
+            if (!serviceManager.IsServiceRunning<FloatingWidgetService>(Application.Context))
+            {
+                snackBar.SetText("Relaunches Floating Window Service");
+                serviceManager.LaunchCallingServiceListener();
+                serviceManager.LaunchFloatingWindowService();
+            } else
+            {
+                snackBar.SetText("Services are already launched. No need to launch again.");
+            }
+            snackBar.Show();
+
         }
 
         #region Permission Handling

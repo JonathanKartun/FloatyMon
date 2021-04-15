@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">FloatyMon</string>
     <string name="action_settings">Settings</string>
+    <string name="app_how_to">Floating Widget\n\nServices launch automatically when the activity starts.\n\nWhen receiving a phone call:\n- Left Button Hides the notification.\n\n- Right button closes the service.\n\n* Button on Bottom right will reactivate the service.\n\n Only shows up when you receive a phone call.</string>
 </resources>

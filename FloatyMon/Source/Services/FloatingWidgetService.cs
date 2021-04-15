@@ -58,10 +58,8 @@ class FloatingWidgetService : Service, View.IOnTouchListener
         txtResult = floatView.FindViewById<TextView>(Resource.Id.txtDetails);
         ImageView iv1 = floatView.FindViewById<ImageView>(Resource.Id.iv1);
         ImageView iv2 = floatView.FindViewById<ImageView>(Resource.Id.iv2);
-        ImageView iv3 = floatView.FindViewById<ImageView>(Resource.Id.iv3);
-        iv1.Click += delegate { Toast.MakeText(ApplicationContext, "The first Image Click", ToastLength.Short).Show(); };
-        iv2.Click += delegate { Toast.MakeText(ApplicationContext, "Hides Me!", ToastLength.Short).Show(); floatView.Visibility = ViewStates.Invisible; };
-        iv3.Click += delegate { Toast.MakeText(ApplicationContext, "STOPPING SERVICE", ToastLength.Short).Show(); StopFloatingWindowService(); };
+        iv1.Click += delegate { Toast.MakeText(ApplicationContext, "Hides Me!", ToastLength.Short).Show(); FloatViewVisibility(false); };
+        iv2.Click += delegate { Toast.MakeText(ApplicationContext, "STOPPING SERVICE", ToastLength.Short).Show(); StopFloatingWindowService(); };
 
         layoutParams = new WindowManagerLayoutParams(
             ViewGroup.LayoutParams.WrapContent,
@@ -124,11 +122,15 @@ class FloatingWidgetService : Service, View.IOnTouchListener
         txtResult.SetText(text, TextView.BufferType.Normal);
     }
 
+    public void FloatViewVisibility(bool visibile)
+    {
+        floatView.Visibility = (visibile ? ViewStates.Visible : ViewStates.Invisible);
+    }
+
     private void StopFloatingWindowService()
     {
-        var AppContext = Application.Context;
-        Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
-        AppContext.StopService(svc);
+        MainActivity.ThisMainActivity.serviceManager.StopCallingMonitorService();
+        MainActivity.ThisMainActivity.serviceManager.StopFloatingWindowService();
     }
 
     #region Broadcast Receiver - Listen From Call Mon
@@ -152,7 +154,7 @@ class FloatingWidgetService : Service, View.IOnTouchListener
             
             if (intent.HasExtra(Constants.FLOATY_MAKEVISIBLE_KEY))
             {
-                ((FloatingWidgetService)Context).floatView.Visibility = ( makeVisible ? ViewStates.Visible : ViewStates.Invisible );
+                ((FloatingWidgetService)Context).FloatViewVisibility(makeVisible);
             }
 
             if (intent.HasExtra(Constants.FLOATY_SETTEXT_KEY))
