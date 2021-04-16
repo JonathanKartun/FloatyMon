@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Util;
 using FloatyMon;
 using FloatyMon.Source.Monitors;
+using Java.Lang;
 
 [Service]
 public class CallingService : Service
@@ -17,6 +18,27 @@ public class CallingService : Service
     {
         base.OnCreate();
         Log.Debug("JCallingService", "ON_CREATE");
+
+        NotiUpdate();
+    }
+
+    void NotiUpdate()
+    {
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.O) { }
+        var CHANNEL_ID = "CallingServiceChannel";
+        ICharSequence NotificationName = new Java.Lang.String("This is Floaty! - Call");
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, NotificationName, NotificationImportance.Default);
+        var manager = (NotificationManager)GetSystemService(NotificationService);
+        manager.CreateNotificationChannel(channel);
+
+        var notification = new Notification.Builder(ApplicationContext, CHANNEL_ID)
+                     .SetContentTitle("Floaty")
+                     .SetContentText("Floating Caller Awaiting Incoming Call")
+                     .SetSmallIcon(Resource.Drawable.abc_ic_star_black_16dp)
+                     .SetAutoCancel(true)
+                     .Build();
+
+        StartForeground(1, notification);
     }
 
     public override IBinder OnBind(Intent intent)
@@ -33,6 +55,11 @@ public class CallingService : Service
     {
         Log.Debug("JCallingService", "ON_UN_BIND");
         return base.OnUnbind(intent);
+    }
+
+    public override ComponentName StartForegroundService(Intent service)
+    {
+        return base.StartForegroundService(service);
     }
 
     [return: GeneratedEnum]

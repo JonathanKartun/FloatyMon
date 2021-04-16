@@ -25,22 +25,25 @@ namespace FloatyMon.Source
         }
 
         #region Starting Services
+
         public void LaunchCallingServiceListener()
         {
-            Context context = Application.Context;
-            Intent serviceToStart = new Intent(context, typeof(CallingService));
-            context.StartService(serviceToStart);
-            context.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
+            Context AppContext = Application.Context;
+            Intent serviceToStart = new Intent(AppContext, typeof(CallingService));
+            //AppContext.StartService(serviceToStart);
+            AppContext.StartForegroundService(serviceToStart);
+            AppContext.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
         }
 
         public void LaunchFloatingWindowService()
         {
             var AppContext = Application.Context;
-            Intent svc = new Intent(AppContext, typeof(FloatingWidgetService));
+            Intent service = new Intent(AppContext, typeof(FloatingWidgetService));
 
-            AppContext.StopService(svc);
-            AppContext.StartService(svc);
-            AppContext.BindService(svc, serviceConnection, Bind.AutoCreate);
+            AppContext.StopService(service);
+            AppContext.StartService(service);
+            //AppContext.StartForegroundService(service);
+            AppContext.BindService(service, serviceConnection, Bind.AutoCreate);
         }
 
         #endregion
