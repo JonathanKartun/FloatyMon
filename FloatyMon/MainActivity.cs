@@ -30,6 +30,9 @@ namespace FloatyMon
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             fab.Click += FabOnClick;
 
+            FloatingActionButton fab2 = FindViewById<FloatingActionButton>(Resource.Id.fab2);
+            fab2.Click += Fab2OnClick;
+
             serviceManager = new MainActivityServiceManager(this);
             ThisMainActivity = this;
 
@@ -71,7 +74,25 @@ namespace FloatyMon
                 snackBar.SetText("Services are already launched. No need to launch again.");
             }
             snackBar.Show();
+        }
 
+        private void Fab2OnClick(object sender, EventArgs eventArgs)
+        {
+            View view = (View)sender;
+            var snackBar = Snackbar.Make(view, "Relaunches Floating Window Service", Snackbar.LengthLong)
+                .SetAction("Action", (View.IOnClickListener)null);
+
+            if (serviceManager.IsServiceRunning<FloatingWidgetService>(Application.Context))
+            {
+                snackBar.SetText("Stopping Services.");
+                ThisMainActivity.serviceManager.StopCallingMonitorService();
+                ThisMainActivity.serviceManager.StopFloatingWindowService();
+            }
+            else
+            {
+                snackBar.SetText("Service wasn't running. No need to stop.");
+            }
+            snackBar.Show();
         }
 
         #region Permission Handling

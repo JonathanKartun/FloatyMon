@@ -3,6 +3,7 @@ using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using FloatyMon.Source.Services;
@@ -30,8 +31,12 @@ namespace FloatyMon.Source
         {
             Context AppContext = Application.Context;
             Intent serviceToStart = new Intent(AppContext, typeof(CallingService));
-            //AppContext.StartService(serviceToStart);
-            AppContext.StartForegroundService(serviceToStart);
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                AppContext.StartForegroundService(serviceToStart);
+            } else {
+                AppContext.StartService(serviceToStart);
+            }
             AppContext.BindService(serviceToStart, serviceConnection, Bind.AutoCreate);
         }
 
