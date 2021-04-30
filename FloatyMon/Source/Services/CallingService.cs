@@ -1,12 +1,13 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using Android.Support.V4.App;
 using Android.Util;
 using FloatyMon;
 using FloatyMon.Source.Monitors;
 
-[Service]
+[Service(Name = "com.jon.FloatyMon.JcallingService")]
 public class CallingService : Service
 {
     public IBinder Binder { get; private set; }
@@ -16,9 +17,29 @@ public class CallingService : Service
     public override void OnCreate()
     {
         base.OnCreate();
+        StartForeground();
         Log.Debug("JCallingService", "ON_CREATE");
     }
 
+    [System.Obsolete]
+    private void StartForeground()
+    {
+        string channelid = "com.jon.FloatyMon.Urgent";
+        var importance = NotificationImportance.High;
+        NotificationChannel Channel = new NotificationChannel("com.jon.FloatyMon.Urgent", "Urgent", importance);
+        Channel.LockscreenVisibility = NotificationVisibility.Public;
+        NotificationManager notificationManager =
+        (NotificationManager)GetSystemService(NotificationService);
+        notificationManager.CreateNotificationChannel(Channel);
+
+        var notificationBuilder = new NotificationCompat.Builder(this, channelid);
+        Notification.Builder builder = new Notification.Builder(this)
+                    .SetContentTitle("Attention!")
+                    .SetContentText("This is an urgent notification message")
+                    .SetChannelId(channelid);
+        Notification not = builder.Build();
+        StartForeground(2, not);
+    }
     public override IBinder OnBind(Intent intent)
     {
         Log.Debug("JCallingService", "ON_BIND");
