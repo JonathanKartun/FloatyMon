@@ -1,4 +1,7 @@
-﻿using Android.Content;
+﻿using System.Linq;
+using Android.App;
+using Android.Content;
+using Android.OS;
 using Android.Telephony;
 using FloatyMon.Source.Extras;
 
@@ -24,7 +27,7 @@ namespace FloatyMon.Source.Monitors
 
         public void StartListener()
         {
-            var AppContext = Android.App.Application.Context;
+            var AppContext = Application.Context;
             PhoneActivityListener = new PhoneActivityListener(CallMonDelegate);
 
             TelephonyManager telephonyManager = (TelephonyManager)AppContext.GetSystemService(Context.TelephonyService);
@@ -33,7 +36,7 @@ namespace FloatyMon.Source.Monitors
 
         public void StopListening()
         {
-            var AppContext = Android.App.Application.Context;
+            var AppContext = Application.Context;
             TelephonyManager telephonyManager = (TelephonyManager)AppContext.GetSystemService(Context.TelephonyService);
             telephonyManager.Listen(PhoneActivityListener, PhoneStateListenerFlags.None);
         }
@@ -41,7 +44,7 @@ namespace FloatyMon.Source.Monitors
         public void CallStateChanged(CallState CallState, string incomingNumber)
         {
             System.Diagnostics.Debug.WriteLine("Getting ---> " + incomingNumber);
-            var AppContext = Android.App.Application.Context;
+            var AppContext = Application.Context;
 
             if (!didFirstLaunch)
             {
@@ -57,6 +60,39 @@ namespace FloatyMon.Source.Monitors
             LocalIntentHelper.SendLocalIntent(AppContext,
                 Constants.FLOATY_LOCAL_INTENT,
                 Constants.FLOATY_MAKEVISIBLE_KEY, makeVisible);
+
+            ShowANotification(incomingNumber);
+        }
+
+        void ShowANotification(string NotificationMessage)
+        {
+            if (Build.VERSION.SdkInt < BuildVersionCodes.O) return;
+            var appCtx = Application.Context;
+            var Manager = (NotificationManager)appCtx.GetSystemService(Context.NotificationService);
+            var NotificationCounter = Manager.GetActiveNotifications().Count() + 1;
+
+            Intent intent = new Intent(appCtx, typeof(MainActivity));
+            intent.SetAction(Intent.ActionMain);
+            intent.AddCategory(Intent.CategoryLauncher);
+            intent.PutExtra(Constants.FLOATY_NOTIFICATION_INTENT_PASSED_ACTIIVITY_KEY, NotificationMessage);
+
+            var CHANNEL_ID = Constants.FLOATY_NOTIFICATION_CHANNEL_ID_ACTIVITIES_KEY;
+            var notification = new Notification.Builder(appCtx, CHANNEL_ID)
+                .SetGroup("Activities")
+                .SetGroupAlertBehavior(NotificationGroupAlertBehavior.Summary)
+                .SetContentTitle(NotificationMessage)
+                .SetSubText("Activity")
+                .SetContentText("Added following behaviours")
+                .SetStyle(new Notification.InboxStyle()
+                .AddLine("Tap to remove")
+                .AddLine("Swipe to remove"))
+                .SetSmallIcon(Resource.Drawable.abc_ic_star_black_16dp)
+                .SetAutoCancel(true)
+                .SetContentIntent(PendingIntent.GetActivity(appCtx, 0, intent, PendingIntentFlags.UpdateCurrent)) //Launches the app
+                //.SetContentIntent(PendingIntent.GetActivity(appCtx, 0, intent, PendingIntentFlags.Immutable)) //Just Removes the notification
+                .Build();
+            
+            Manager.Notify(NotificationCounter, notification);
         }
     }
 }

@@ -37,6 +37,8 @@ namespace FloatyMon
             ThisMainActivity = this;
 
             SetupServices();
+
+            CheckTheIntentWasLaunchedWithData();
         }
 
         [Obsolete]
@@ -49,6 +51,23 @@ namespace FloatyMon
             }
 
             CheckIsRunning();
+        }
+
+        void CheckTheIntentWasLaunchedWithData()
+        {
+            Intent intent = this.Intent;
+
+            if (intent != null && intent.Extras != null)
+            {
+                String intentActivity = intent.Extras.GetString(Constants.FLOATY_NOTIFICATION_INTENT_PASSED_ACTIIVITY_KEY);
+                if (intentActivity != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($">>> Acitivity Launched with Intent Data: {intentActivity}");
+                } else
+                {
+                    System.Diagnostics.Debug.WriteLine($">>> Acitivity Launched with UNHANDLED Intent Data: {intent}");
+                }
+            }
         }
 
         [Obsolete]
